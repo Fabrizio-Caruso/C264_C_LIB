@@ -1,4 +1,7 @@
 
+    .DEFINE IRQ_ACK $FF09
+    .DEFINE TED_LINE $FF0B
+    
     .IF .DEFINED(BASIC)
         USE_KERNAL=1
         STANDARD_IRQ=1
@@ -50,13 +53,13 @@ _INITRASTER:
     SEI
 
 ;-------------------
-    LDA #<IRQ                          ; Load low byte of Setup IRQ vector
+    LDA #<IRQBOTTOM                          ; Load low byte of Setup IRQ vector
     .IFDEF USE_KERNAL
         STA IRQVec                      ; Store it into vector used if Kernal is ON,
     .ELSE
         STA $FFFE                       ; otherwise store it into vector used if Kernal is OFF
     .ENDIF
-    LDA #>IRQ                          ; Load hi byte of Setup IRQ vector
+    LDA #>IRQBOTTOM                          ; Load hi byte of Setup IRQ vector
     .IFDEF USE_KERNAL
         STA IRQVec+$0001                ; Store it into vector used if Kernal is ON,
     .ELSE
@@ -74,22 +77,21 @@ _INITRASTER:
     .ELSE
         STA $FFFB                       ; otherwise store it into vector used if Kernal is OFF
     .ENDIF
-    LDA #$01
-    STA VIC_IMR                         ; Enable raster IRQs.
-    LDA #$1B
-    STA VIC_CTRL1                       ; Set high bit of interrupt position = $0xx
-    LDA #IRQTOPLINE
-    STA VIC_HLINE                       ; Set position where first IRQ happens.
-    LDA CIA1_ICR                        ; Acknowledge IRQ (to be sure)
+    ;LDA #$01
+    ;STA VIC_IMR                         ; Enable raster IRQs.
+    ;LDA #$1B
+    ;STA VIC_CTRL1                       ; Set high bit of interrupt position = $0xx
+    LDA #IRQBOTTOMLINE
+    STA TED_LINE                        ; Set position where first IRQ happens.
+    LDA IRQ_ACK                         ; Acknowledge IRQ (to be sure)
 
     CLI                                 ; Let IRQs happen.
     RTS                                 ; Back to where he came from.
 
 ;---------------------------------------
-; Raster interrupt 3.
-; This is where sprite displaying happens
+; Top Raster interrupt 
 ;-------------------
-IRQ:
+IRQBOTTOM:
     .IFDEF DEBUG 
         INC TED_BORDERCOLOR             ; Show rastertime usage for debug.
     .ENDIF
@@ -100,13 +102,85 @@ IRQ:
         STY BOTTOM_STORE_Y                     ; for kernal OFF only
     .ENDIF
 
+    LDA #<IRQBOTTOM                         ; If we just displayed last sprite, load low byte of sort IRQ vector
+    .IFDEF USE_KERNAL
+        STA IRQVec                      ; Store it into vector used if Kernal is ON,
+    .ELSE
+        STA $FFFE                       ; otherwise store it into vector used if Kernal is OFF
+    .ENDIF
+    LDA #>IRQBOTTOM                          ; Load hi byte of sort IRQ vector
+    .IFDEF USE_KERNAL
+        STA IRQVec+$0001                ; Store it into vector used if Kernal is ON
+    .ELSE
+        STA $FFFF                       ; otherwise store it into vector used if Kernal is OFF
+    .ENDIF
+    LDA #IRQBOTTOMLINE                       ; Load position where sort IRQ happens,
+    STA TED_LINE                       ; and set it.    
+
     .IFDEF DEBUG 
         DEC TED_BORDERCOLOR             ; Show rastertime usage for debug.
+    .ENDIF  
+    
+    RTI
+    
+;---------------------------------------
+; Bottom Raster interrupt 
+;-------------------
+BOTTOM_EXIT_IRQ:                               ; Exit IRQ code.
+    LSR TED_ACK                         ; Acknowledge raster IRQ
+
+    .IF .NOT .DEFINED(USE_KERNAL)
+        BOTTOM_STORE_A = *+$0001           ; Restore original registers value
+        LDA #$00
+        BOTTOM_STORE_X = *+$0001           ; at the original values they have before
+        LDX #$00
+        BOTTOM_STORE_Y = *+$0001           ; IRQ call
+        LDY #$00         
+    .ELSE ; JMP $EA31/$EA81
+        JMP BOTTOM_KERNAL_IRQ              ; Use normal Kernal C64 IRQ exit code if Kernal is ON 
     .ENDIF
+
+IRQ_RTI:
+    RTI                                 ; ReTurn from Interrupt 
+
+;----------------------------------------------
+
+
+
+
+IRQBOTTOM:
+    .IFDEF DEBUG 
+        INC TED_BORDERCOLOR             ; Show rastertime usage for debug.
+    .ENDIF
+    
+    .IFNDEF USE_KERNAL
+        STA BOTTOM_STORE_A                     ; Fast way to store/restore
+        STX BOTTOM_STORE_X                     ; CPU regs after an IRQ
+        STY BOTTOM_STORE_Y                     ; for kernal OFF only
+    .ENDIF
+
+    LDA #<IRQTOP                         ; If we just displayed last sprite, load low byte of sort IRQ vector
+    .IFDEF USE_KERNAL
+        STA IRQVec                      ; Store it into vector used if Kernal is ON,
+    .ELSE
+        STA $FFFE                       ; otherwise store it into vector used if Kernal is OFF
+    .ENDIF
+    LDA #>IRQTOP                          ; Load hi byte of sort IRQ vector
+    .IFDEF USE_KERNAL
+        STA IRQVec+$0001                ; Store it into vector used if Kernal is ON
+    .ELSE
+        STA $FFFF                       ; otherwise store it into vector used if Kernal is OFF
+    .ENDIF
+    LDA #IRQTOPLINE                       ; Load position where sort IRQ happens,
+    STA TED_LINE                       ; and set it.    
+
+    .IFDEF DEBUG 
+        DEC TED_BORDERCOLOR             ; Show rastertime usage for debug.
+    .ENDIF  
     
 ;-------------------
 BOTTOM_EXIT_IRQ:                               ; Exit IRQ code.
-    LSR VIC_IRR                         ; Acknowledge raster IRQ
+    LSR TED_ACK                         ; Acknowledge raster IRQ
 
     .IF .NOT .DEFINED(USE_KERNAL)
         BOTTOM_STORE_A = *+$0001           ; Restore original registers value
