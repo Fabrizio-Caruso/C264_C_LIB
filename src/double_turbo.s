@@ -91,7 +91,7 @@ _INITRASTER:
 ;---------------------------------------
 ; Top Raster interrupt 
 ;-------------------
-IRQBOTTOM:
+IRQTOP:
     .IFDEF DEBUG 
         INC TED_BORDERCOLOR             ; Show rastertime usage for debug.
     .ENDIF
@@ -123,30 +123,7 @@ IRQBOTTOM:
     
     RTI
     
-;---------------------------------------
-; Bottom Raster interrupt 
-;-------------------
-BOTTOM_EXIT_IRQ:                               ; Exit IRQ code.
-    LSR TED_ACK                         ; Acknowledge raster IRQ
-
-    .IF .NOT .DEFINED(USE_KERNAL)
-        BOTTOM_STORE_A = *+$0001           ; Restore original registers value
-        LDA #$00
-        BOTTOM_STORE_X = *+$0001           ; at the original values they have before
-        LDX #$00
-        BOTTOM_STORE_Y = *+$0001           ; IRQ call
-        LDY #$00         
-    .ELSE ; JMP $EA31/$EA81
-        JMP BOTTOM_KERNAL_IRQ              ; Use normal Kernal C64 IRQ exit code if Kernal is ON 
-    .ENDIF
-
-IRQ_RTI:
-    RTI                                 ; ReTurn from Interrupt 
-
 ;----------------------------------------------
-
-
-
 
 IRQBOTTOM:
     .IFDEF DEBUG 
@@ -180,7 +157,7 @@ IRQBOTTOM:
     
 ;-------------------
 BOTTOM_EXIT_IRQ:                               ; Exit IRQ code.
-    LSR TED_ACK                         ; Acknowledge raster IRQ
+    LSR IRQ_ACK                         ; Acknowledge raster IRQ
 
     .IF .NOT .DEFINED(USE_KERNAL)
         BOTTOM_STORE_A = *+$0001           ; Restore original registers value

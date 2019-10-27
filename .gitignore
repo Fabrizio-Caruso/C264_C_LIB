@@ -1,0 +1,8 @@
+main.s
+*.o
+*.prg
+./demos/*.o
+./build/*.prg
+./vscode/*
+map.txt
+
