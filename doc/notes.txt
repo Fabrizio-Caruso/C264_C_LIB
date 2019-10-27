@@ -1,0 +1,12 @@
+IRQ/NMI pointers:
+https://www.c64-wiki.com/wiki/Commodore_16 
+i.e., same as C64 and C128
+
+Kernal shadow pointer: $0314/$0315
+
+Kernal routines:
+$CE0E keyboard support
+$FCBE light-weight
+
+NTSC: $FF07 bit6, 
+double clock: $FF13 bit0 
