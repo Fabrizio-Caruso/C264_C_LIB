@@ -2,6 +2,8 @@ IRQ/NMI pointers:
 https://www.c64-wiki.com/wiki/Commodore_16 
 i.e., same as C64 and C128
 
+Acknowledge:  $FF09 http://plus4world.powweb.com/forum/36070
+
 Kernal shadow pointer: $0314/$0315
 
 Kernal routines:
