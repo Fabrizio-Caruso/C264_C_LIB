@@ -1,6 +1,7 @@
 
     .DEFINE IRQ_ACK $FF09
     .DEFINE TED_LINE $FF0B
+    .DEFINE TED_IRQ_MASK $FF0A
     
     .IF .DEFINED(BASIC)
         USE_KERNAL=1
@@ -77,10 +78,10 @@ _INITRASTER:
     .ELSE
         STA $FFFB                       ; otherwise store it into vector used if Kernal is OFF
     .ENDIF
-    ;LDA #$01
-    ;STA VIC_IMR                         ; Enable raster IRQs.
-    ;LDA #$1B
-    ;STA VIC_CTRL1                       ; Set high bit of interrupt position = $0xx
+    ; Enable raster IRQs and set high bit of interrupt position = $0xx
+    LDA TED_IRQ_MASK
+    ORA #$02+0
+    STA TED_IRQ_MASK
     LDA #IRQBOTTOMLINE
     STA TED_LINE                        ; Set position where first IRQ happens.
     LDA IRQ_ACK                         ; Acknowledge IRQ (to be sure)
