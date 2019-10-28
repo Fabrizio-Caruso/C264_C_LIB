@@ -29,6 +29,7 @@ MYCL65 ?= cl65$(EXEEXT) $(INCLUDE_OPTS)
 
 double_turbo:
 	$(CC65_PATH)$(MYCL65) $(MYCCFLAGS) $(MYCFG) \
+	--asm-define USE_KERNAL=1 \
 	$(DEMOS_PATH)/double_turbo_test.c \
 	$(SOURCE_PATH)/double_turbo.s \
 	-o $(BUILD_PATH)/double_turbo.prg

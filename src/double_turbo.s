@@ -20,10 +20,11 @@
     FULL_STANDARD_KERNAL=$CE0E
     LIGHT_STANDARD_KERNAL=$FCBE
 
+    TOP_KERNAL_IRQ=LIGHT_STANDARD_KERNAL
     .IFDEF STANDARD_IRQ
-        KERNAL_IRQ=FULL_STANDARD_KERNAL        
+        BOTTOM_KERNAL_IRQ=FULL_STANDARD_KERNAL        
     .ELSE
-        KERNAL_IRQ=LIGHT_STANDARD_KERNAL        
+        BOTTOM_KERNAL_IRQ=LIGHT_STANDARD_KERNAL        
     .ENDIF
 
    
@@ -122,8 +123,18 @@ IRQTOP:
         DEC TED_BORDERCOLOR             ; Show rastertime usage for debug.
     .ENDIF  
     
-    RTI
+    .IF .NOT .DEFINED(USE_KERNAL)
+        TOP_STORE_A = *+$0001           ; Restore original registers value
+        LDA #$00
+        TOP_STORE_X = *+$0001           ; at the original values they have before
+        LDX #$00
+        TOP_STORE_Y = *+$0001           ; IRQ call
+        LDY #$00         
+    .ELSE ; 
+        JMP TOP_KERNAL_IRQ              ; Use normal Kernal C64 IRQ exit code if Kernal is ON 
+    .ENDIF
     
+    RTI
 ;----------------------------------------------
 
 IRQBOTTOM:
