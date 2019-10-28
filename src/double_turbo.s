@@ -115,8 +115,8 @@ IRQTOP:
         STA $FFFF                       ; otherwise store it into vector used if Kernal is OFF
     .ENDIF
     LDA #IRQBOTTOMLINE                       ; Load position where sort IRQ happens,
-    STA TED_LINE                       ; and set it.    
-
+    STA TED_LINE                        ; Set position where first IRQ happens.
+    
     .IFDEF DEBUG 
         DEC TED_BORDERCOLOR             ; Show rastertime usage for debug.
     .ENDIF  

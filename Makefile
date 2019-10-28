@@ -33,3 +33,17 @@ double_turbo:
 	$(SOURCE_PATH)/double_turbo.s \
 	-o $(BUILD_PATH)/double_turbo.prg
 	rm $(SOURCE_PATH)/*.o
+
+
+####################################################
+clean:
+	rm -rf *.prg
+	rm -rf $(SOURCE_PATH)/*.o
+	rm -rf $(DEMOS_PATH)/*.o
+	rm -rf ./build/*
+	rm -rf main.s
+
+   
+all: double_turbo
+
+
