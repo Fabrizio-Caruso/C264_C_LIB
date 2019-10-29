@@ -85,7 +85,7 @@ _INITRASTER:
     STA TED_IRQ_MASK
     LDA #IRQBOTTOMLINE
     STA TED_LINE                        ; Set position where first IRQ happens.
-    LDA IRQ_ACK                         ; Acknowledge IRQ (to be sure)
+    LSR IRQ_ACK                         ; Acknowledge IRQ (to be sure)
 
     CLI                                 ; Let IRQs happen.
     RTS                                 ; Back to where he came from.
@@ -94,7 +94,7 @@ _INITRASTER:
 ; Top Raster interrupt 
 ;-------------------
 IRQTOP:
-    
+    ; SEI
     .IFNDEF USE_KERNAL
         STA BOTTOM_STORE_A                     ; Fast way to store/restore
         STX BOTTOM_STORE_X                     ; CPU regs after an IRQ
@@ -102,7 +102,7 @@ IRQTOP:
     .ENDIF
 
     .IFDEF DEBUG
-        LDA #$FF
+        LDA #$92
         STA TED_BORDERCOLOR             ; Show rastertime usage for debug.
     .ENDIF
 
@@ -123,12 +123,12 @@ IRQTOP:
     LDA IRQ_ACK                         ; Acknowledge IRQ (to be sure)
 
     .IFDEF DEBUG
-        LDA #$82
+        LDA #$83
         STA TED_BORDERCOLOR             ; Show rastertime usage for debug.
     .ENDIF  
     
     LSR IRQ_ACK 
-    
+    ; CLI
     .IF .NOT .DEFINED(USE_KERNAL)
         TOP_STORE_A = *+$0001           ; Restore original registers value
         LDA #$00
@@ -145,6 +145,7 @@ IRQTOP:
 
 IRQBOTTOM:
 
+    ; SEI
     
     .IFNDEF USE_KERNAL
         STA BOTTOM_STORE_A                     ; Fast way to store/restore
@@ -153,7 +154,7 @@ IRQBOTTOM:
     .ENDIF
 
     .IFDEF DEBUG
-        LDA #$47
+        LDA #$92
         STA TED_BORDERCOLOR             ; Show rastertime usage for debug.
     .ENDIF
 
@@ -171,14 +172,15 @@ IRQBOTTOM:
     .ENDIF
     LDA #IRQTOPLINE                       ; Load position where sort IRQ happens,
     STA TED_LINE                       ; and set it.    
-
+ 
     .IFDEF DEBUG
-        LDA #$A0
+        LDA #$A1
         STA TED_BORDERCOLOR             ; Show rastertime usage for debug.
     .ENDIF  
    
     LSR IRQ_ACK                         ; Acknowledge raster IRQ
-
+   
+    ; CLI
     .IF .NOT .DEFINED(USE_KERNAL)
         BOTTOM_STORE_A = *+$0001           ; Restore original registers value
         LDA #$00
@@ -189,7 +191,7 @@ IRQBOTTOM:
     .ELSE ; JMP $EA31/$EA81
         JMP BOTTOM_KERNAL_IRQ              ; Use normal Kernal C64 IRQ exit code if Kernal is ON 
     .ENDIF
-
+    
 IRQ_RTI:
     RTI                                 ; ReTurn from Interrupt 
 
