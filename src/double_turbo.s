@@ -36,8 +36,8 @@
 ;EXPANDY= $01                            ; Set to != $00 to enable expand_y sprites flag
 ;-------------------
 ;-------------------
-IRQTOPLINE = $02                        ; Sprites display IRQ at rasterline $023.
-IRQBOTTOMLINE = $60                     ; Sorting code IRQ at rasterline $0FC
+IRQTOPLINE = $02                       ; Sprites display IRQ at rasterline $023.
+IRQBOTTOMLINE = 203                     ; Sorting code IRQ at rasterline $0FC
 
 ;-------------------
 ;MUSIC_CODE = $01                       ; Set to $01 to enable music routines
@@ -123,9 +123,11 @@ IRQTOP:
     LDA IRQ_ACK                         ; Acknowledge IRQ (to be sure)
 
     .IFDEF DEBUG
-        ; LDA #$00
-        ; STA TED_BORDERCOLOR             ; Show rastertime usage for debug.
+        LDA #$82
+        STA TED_BORDERCOLOR             ; Show rastertime usage for debug.
     .ENDIF  
+    
+    LSR IRQ_ACK 
     
     .IF .NOT .DEFINED(USE_KERNAL)
         TOP_STORE_A = *+$0001           ; Restore original registers value
@@ -169,15 +171,12 @@ IRQBOTTOM:
     .ENDIF
     LDA #IRQTOPLINE                       ; Load position where sort IRQ happens,
     STA TED_LINE                       ; and set it.    
-    LDA IRQ_ACK                         ; Acknowledge IRQ (to be sure)
 
     .IFDEF DEBUG
-        ; LDA #$A0
-        ; STA TED_BORDERCOLOR             ; Show rastertime usage for debug.
+        LDA #$A0
+        STA TED_BORDERCOLOR             ; Show rastertime usage for debug.
     .ENDIF  
-    
-;-------------------
-BOTTOM_EXIT_IRQ:                               ; Exit IRQ code.
+   
     LSR IRQ_ACK                         ; Acknowledge raster IRQ
 
     .IF .NOT .DEFINED(USE_KERNAL)
