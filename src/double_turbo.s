@@ -94,18 +94,26 @@ _INITRASTER:
 ; Top Raster interrupt 
 ;-------------------
 IRQTOP:
-    ; SEI
     .IFNDEF USE_KERNAL
         STA BOTTOM_STORE_A                     ; Fast way to store/restore
         STX BOTTOM_STORE_X                     ; CPU regs after an IRQ
         STY BOTTOM_STORE_Y                     ; for kernal OFF only
     .ENDIF
 
+    ; Set PAL mode
+    LDA TED_MULTI1
+    AND #$FF - $40
+    STA TED_MULTI1
+    ; Disable double clock
+    LDA TED_CLK
+    ORA #$02
+    STA TED_CLK 
+
     .IFDEF DEBUG
         LDA #$92
         STA TED_BORDERCOLOR             ; Show rastertime usage for debug.
     .ENDIF
-
+    
     LDA #<IRQBOTTOM                         ; If we just displayed last sprite, load low byte of sort IRQ vector
     .IFDEF USE_KERNAL
         STA IRQVec                      ; Store it into vector used if Kernal is ON,
@@ -128,7 +136,6 @@ IRQTOP:
     .ENDIF  
     
     LSR IRQ_ACK 
-    ; CLI
     .IF .NOT .DEFINED(USE_KERNAL)
         TOP_STORE_A = *+$0001           ; Restore original registers value
         LDA #$00
@@ -144,8 +151,6 @@ IRQTOP:
 ;----------------------------------------------
 
 IRQBOTTOM:
-
-    ; SEI
     
     .IFNDEF USE_KERNAL
         STA BOTTOM_STORE_A                     ; Fast way to store/restore
@@ -157,6 +162,15 @@ IRQBOTTOM:
         LDA #$92
         STA TED_BORDERCOLOR             ; Show rastertime usage for debug.
     .ENDIF
+
+    ; Set NTSC mode
+    LDA TED_MULTI1
+    ORA #$40
+    STA TED_MULTI1
+    ; Enable double clock
+    LDA TED_CLK
+    AND #$FD
+    STA TED_CLK 
 
     LDA #<IRQTOP                         ; If we just displayed last sprite, load low byte of sort IRQ vector
     .IFDEF USE_KERNAL
@@ -180,7 +194,6 @@ IRQBOTTOM:
    
     LSR IRQ_ACK                         ; Acknowledge raster IRQ
    
-    ; CLI
     .IF .NOT .DEFINED(USE_KERNAL)
         BOTTOM_STORE_A = *+$0001           ; Restore original registers value
         LDA #$00
