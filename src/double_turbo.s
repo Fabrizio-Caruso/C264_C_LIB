@@ -102,15 +102,17 @@ IRQTOP:
 
     .IF .DEFINED(NTSC_MODE_TRICK)
         ; Set PAL mode
-        LDA TED_MULTI1
+        LDA $FF07
         AND #$FF - $40
-        STA TED_MULTI1
+        ; LDA #$08
+        STA $FF07
     .ENDIF
     
     .IF .DEFINED(DOUBLE_CLOCK)
         ; Disable double clock
         LDA TED_CLK
         ORA #$02
+        ; LDA #210
         STA TED_CLK 
     .ENDIF
 
@@ -172,6 +174,7 @@ IRQBOTTOM:
         ; Set NTSC mode
         LDA TED_MULTI1
         ORA #$40
+        ; LDA #$48
         STA TED_MULTI1
     .ENDIF
     
@@ -179,6 +182,7 @@ IRQBOTTOM:
         ; Enable double clock
         LDA TED_CLK
         AND #$FD
+        ; LDA #208
         STA TED_CLK 
     .ENDIF
 

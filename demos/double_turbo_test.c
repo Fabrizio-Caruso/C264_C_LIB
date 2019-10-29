@@ -12,14 +12,13 @@ int main()
 
     clrscr();
     gotoxy(1,1);
-    cprintf("Press a key to start");
+    cprintf("press a key to start");
     cgetc();
 
     gotoxy(1,3);
-    cprintf("Raster interrupt initialized\n");    
+    cprintf("raster interrupt initialized\n");    
     INITRASTER();
 
-    
     for(j=0;j<40;++j)
     {
         for(i=0;i<5000;++i)
