@@ -26,10 +26,10 @@ endif
 MYCC65 ?= cc65$(EXEEXT) $(INCLUDE_OPTS) 
 MYCL65 ?= cl65$(EXEEXT) $(INCLUDE_OPTS) 
 
+#	--asm-define USE_KERNAL=1 
 
 double_turbo:
 	$(CC65_PATH)$(MYCL65) $(MYCCFLAGS) $(MYCFG) \
-	--asm-define USE_KERNAL=1 \
 	--asm-define STANDARD_IRQ=1 \
 	--asm-define DEBUG=1 \
 	--asm-define DOUBLE_CLOCK=1 \
@@ -37,6 +37,16 @@ double_turbo:
 	$(DEMOS_PATH)/double_turbo_test.c \
 	$(SOURCE_PATH)/double_turbo.s \
 	-o $(BUILD_PATH)/double_turbo.prg
+	rm $(SOURCE_PATH)/*.o
+
+
+no_turbo:
+	$(CC65_PATH)$(MYCL65) $(MYCCFLAGS) $(MYCFG) \
+	--asm-define STANDARD_IRQ=1 \
+	--asm-define DEBUG=1 \
+	$(DEMOS_PATH)/double_turbo_test.c \
+	$(SOURCE_PATH)/double_turbo.s \
+	-o $(BUILD_PATH)/no_turbo.prg
 	rm $(SOURCE_PATH)/*.o
 
 
@@ -49,6 +59,10 @@ clean:
 	rm -rf main.s
 
    
-all: double_turbo
+all: \
+	double_turbo \
+	no_turbo
+
+
 
 
