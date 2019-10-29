@@ -36,8 +36,8 @@
 ;EXPANDY= $01                            ; Set to != $00 to enable expand_y sprites flag
 ;-------------------
 ;-------------------
-IRQTOPLINE = $23                        ; Sprites display IRQ at rasterline $023.
-IRQBOTTOMLINE = $90                     ; Sorting code IRQ at rasterline $0FC
+IRQTOPLINE = $02                        ; Sprites display IRQ at rasterline $023.
+IRQBOTTOMLINE = $60                     ; Sorting code IRQ at rasterline $0FC
 
 ;-------------------
 ;MUSIC_CODE = $01                       ; Set to $01 to enable music routines
@@ -94,14 +94,16 @@ _INITRASTER:
 ; Top Raster interrupt 
 ;-------------------
 IRQTOP:
-    .IFDEF DEBUG 
-        INC TED_BORDERCOLOR             ; Show rastertime usage for debug.
-    .ENDIF
     
     .IFNDEF USE_KERNAL
         STA BOTTOM_STORE_A                     ; Fast way to store/restore
         STX BOTTOM_STORE_X                     ; CPU regs after an IRQ
         STY BOTTOM_STORE_Y                     ; for kernal OFF only
+    .ENDIF
+
+    .IFDEF DEBUG
+        LDA #$FF
+        STA TED_BORDERCOLOR             ; Show rastertime usage for debug.
     .ENDIF
 
     LDA #<IRQBOTTOM                         ; If we just displayed last sprite, load low byte of sort IRQ vector
@@ -118,9 +120,11 @@ IRQTOP:
     .ENDIF
     LDA #IRQBOTTOMLINE                       ; Load position where sort IRQ happens,
     STA TED_LINE                        ; Set position where first IRQ happens.
-    
-    .IFDEF DEBUG 
-        DEC TED_BORDERCOLOR             ; Show rastertime usage for debug.
+    LDA IRQ_ACK                         ; Acknowledge IRQ (to be sure)
+
+    .IFDEF DEBUG
+        ; LDA #$00
+        ; STA TED_BORDERCOLOR             ; Show rastertime usage for debug.
     .ENDIF  
     
     .IF .NOT .DEFINED(USE_KERNAL)
@@ -138,14 +142,17 @@ IRQTOP:
 ;----------------------------------------------
 
 IRQBOTTOM:
-    .IFDEF DEBUG 
-        INC TED_BORDERCOLOR             ; Show rastertime usage for debug.
-    .ENDIF
+
     
     .IFNDEF USE_KERNAL
         STA BOTTOM_STORE_A                     ; Fast way to store/restore
         STX BOTTOM_STORE_X                     ; CPU regs after an IRQ
         STY BOTTOM_STORE_Y                     ; for kernal OFF only
+    .ENDIF
+
+    .IFDEF DEBUG
+        LDA #$47
+        STA TED_BORDERCOLOR             ; Show rastertime usage for debug.
     .ENDIF
 
     LDA #<IRQTOP                         ; If we just displayed last sprite, load low byte of sort IRQ vector
@@ -162,9 +169,11 @@ IRQBOTTOM:
     .ENDIF
     LDA #IRQTOPLINE                       ; Load position where sort IRQ happens,
     STA TED_LINE                       ; and set it.    
+    LDA IRQ_ACK                         ; Acknowledge IRQ (to be sure)
 
-    .IFDEF DEBUG 
-        DEC TED_BORDERCOLOR             ; Show rastertime usage for debug.
+    .IFDEF DEBUG
+        ; LDA #$A0
+        ; STA TED_BORDERCOLOR             ; Show rastertime usage for debug.
     .ENDIF  
     
 ;-------------------
