@@ -1,9 +1,12 @@
 #include <conio.h>
+#include <peekpoke.h>
 
 void INITRASTER(void);
 
 int main()
 {
+    unsigned char i;
+    
     clrscr();
     
     gotoxy(1,1);
@@ -14,7 +17,10 @@ int main()
     gotoxy(1,3);
     cprintf("Raster interrupt initialized\n");
     
-    while(1){};
+    while(1)
+    {
+        POKE(3072,++i);
+    };
 
     return 0;
 }
