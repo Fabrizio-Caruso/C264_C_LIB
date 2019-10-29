@@ -100,14 +100,19 @@ IRQTOP:
         STY BOTTOM_STORE_Y                     ; for kernal OFF only
     .ENDIF
 
-    ; Set PAL mode
-    LDA TED_MULTI1
-    AND #$FF - $40
-    STA TED_MULTI1
-    ; Disable double clock
-    LDA TED_CLK
-    ORA #$02
-    STA TED_CLK 
+    .IF .DEFINED(NTSC_MODE_TRICK)
+        ; Set PAL mode
+        LDA TED_MULTI1
+        AND #$FF - $40
+        STA TED_MULTI1
+    .ENDIF
+    
+    .IF .DEFINED(DOUBLE_CLOCK)
+        ; Disable double clock
+        LDA TED_CLK
+        ORA #$02
+        STA TED_CLK 
+    .ENDIF
 
     .IFDEF DEBUG
         LDA #$92
@@ -163,14 +168,19 @@ IRQBOTTOM:
         STA TED_BORDERCOLOR             ; Show rastertime usage for debug.
     .ENDIF
 
-    ; Set NTSC mode
-    LDA TED_MULTI1
-    ORA #$40
-    STA TED_MULTI1
-    ; Enable double clock
-    LDA TED_CLK
-    AND #$FD
-    STA TED_CLK 
+    .IF .DEFINED(NTSC_MODE_TRICK)
+        ; Set NTSC mode
+        LDA TED_MULTI1
+        ORA #$40
+        STA TED_MULTI1
+    .ENDIF
+    
+    .IF .DEFINED(DOUBLE_CLOCK)
+        ; Enable double clock
+        LDA TED_CLK
+        AND #$FD
+        STA TED_CLK 
+    .ENDIF
 
     LDA #<IRQTOP                         ; If we just displayed last sprite, load low byte of sort IRQ vector
     .IFDEF USE_KERNAL
