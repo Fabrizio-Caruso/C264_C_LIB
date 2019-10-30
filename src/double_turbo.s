@@ -2,6 +2,7 @@
     .DEFINE IRQ_ACK $FF09
     .DEFINE TED_LINE $FF0B
     .DEFINE TED_IRQ_MASK $FF0A
+    .DEFINE TED_CTRL1 $FF06
     
     .IF .DEFINED(BASIC)
         USE_KERNAL=1
@@ -100,19 +101,26 @@ IRQTOP:
         STY BOTTOM_STORE_Y                     ; for kernal OFF only
     .ENDIF
 
+    .IF .DEFINED(BLANK_SCREEN)
+        ; Show screen
+        LDA TED_CTRL1
+        ORA #$10
+        STA TED_CTRL1
+    .ENDIF
+    
     .IF .DEFINED(NTSC_MODE_TRICK)
         ; Set PAL mode
-        LDA $FF07
-        AND #$FF - $40
-        ; LDA #$08
-        STA $FF07
+        ;LDA TED_MULTI1
+        ;AND #($FF - $40)
+        LDA #$08
+        STA TED_MULTI1
     .ENDIF
     
     .IF .DEFINED(DOUBLE_CLOCK)
         ; Disable double clock
-        LDA TED_CLK
-        ORA #$02
-        ; LDA #210
+        ;LDA TED_CLK
+        ;ORA #$02
+        LDA #210
         STA TED_CLK 
     .ENDIF
 
@@ -170,19 +178,26 @@ IRQBOTTOM:
         STA TED_BORDERCOLOR             ; Show rastertime usage for debug.
     .ENDIF
 
+    .IF .DEFINED(BLANK_SCREEN)
+        ; Blank screen 
+        LDA TED_CTRL1
+        AND #($FF - $10)
+        STA TED_CTRL1
+    .ENDIF
+
     .IF .DEFINED(NTSC_MODE_TRICK)
         ; Set NTSC mode
-        LDA TED_MULTI1
-        ORA #$40
-        ; LDA #$48
+        ;LDA TED_MULTI1
+        ;ORA #$40
+        LDA #$48
         STA TED_MULTI1
     .ENDIF
     
     .IF .DEFINED(DOUBLE_CLOCK)
         ; Enable double clock
-        LDA TED_CLK
-        AND #$FD
-        ; LDA #208
+        ;LDA TED_CLK
+        ;AND #$FD
+        LDA #208
         STA TED_CLK 
     .ENDIF
 

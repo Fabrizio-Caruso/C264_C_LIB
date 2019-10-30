@@ -28,7 +28,31 @@ MYCL65 ?= cl65$(EXEEXT) $(INCLUDE_OPTS)
 
 # Full Kernal with: --asm-define STANDARD_IRQ=1 
 
-double_turbo:
+
+double_clock_ntsc_blank:
+	$(CC65_PATH)$(MYCL65) $(MYCCFLAGS) $(MYCFG) \
+	--asm-define USE_KERNAL=1 \
+	--asm-define DEBUG=1 \
+	--asm-define DOUBLE_CLOCK=1 \
+	--asm-define BLANK_SCREEN=1 \
+	--asm-define NTSC_MODE_TRICK=1 \
+	$(DEMOS_PATH)/double_turbo_test.c \
+	$(SOURCE_PATH)/double_turbo.s \
+	-o $(BUILD_PATH)/double_clock_ntsc_blank.prg
+	rm $(SOURCE_PATH)/*.o
+
+double_clock_blank:
+	$(CC65_PATH)$(MYCL65) $(MYCCFLAGS) $(MYCFG) \
+	--asm-define USE_KERNAL=1 \
+	--asm-define DEBUG=1 \
+	--asm-define DOUBLE_CLOCK=1 \
+	--asm-define BLANK_SCREEN=1 \
+	$(DEMOS_PATH)/double_turbo_test.c \
+	$(SOURCE_PATH)/double_turbo.s \
+	-o $(BUILD_PATH)/double_clock_blank.prg
+	rm $(SOURCE_PATH)/*.o
+
+double_clock_ntsc:
 	$(CC65_PATH)$(MYCL65) $(MYCCFLAGS) $(MYCFG) \
 	--asm-define USE_KERNAL=1 \
 	--asm-define DEBUG=1 \
@@ -36,7 +60,7 @@ double_turbo:
 	--asm-define NTSC_MODE_TRICK=1 \
 	$(DEMOS_PATH)/double_turbo_test.c \
 	$(SOURCE_PATH)/double_turbo.s \
-	-o $(BUILD_PATH)/double_turbo.prg
+	-o $(BUILD_PATH)/double_clock_ntsc.prg
 	rm $(SOURCE_PATH)/*.o
 
 
@@ -73,7 +97,10 @@ clean:
 all: \
 	no_turbo \
 	double_clock \
-	double_turbo 
+	double_clock_ntsc \
+	double_clock_blank \
+	double_clock_ntsc_blank
+
 
 
 
